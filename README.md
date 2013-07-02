@@ -1,4 +1,4 @@
 minioc-loader
 =============
 
-Connect middleware for loading minioc-aware modules (nodejs).
+Utility for loading and initializing minioc aware modules (nodejs).
