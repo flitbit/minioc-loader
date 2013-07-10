@@ -36,16 +36,18 @@ minioc.fulfill('startup', function($config, $app) {
 ## Operations
 
 * `loadSync` - loads a module or a directory according to the minioc-loader convention
-** `container` (argument 0) - a minioc container used when initializing modules
-** `path` (argument 1) - a path (relative to loader's `basePath`) to be loaded. Can be a .js module or a directory.
+ * `container` (argument 0) - a minioc container used when initializing modules
+ * `path` (argument 1) - a path (relative to loader's `basePath`) to be loaded. Can be a .js module or a directory.
 
-**Convention**
+## Conventions
 
-If `path` is a .js file then the loader will treat the file as a module and load it using node's `require` function. If the module exports a function with the name `$init` then the loader will tell `minioc` to `fulfill` it. Minioc identifies dependencies by convention; any named argument beginning with a dollar sign (`$`) is considered a dependency and minioc will inject that argument. As soon as minioc is able to fulfill all of the dependencies of the exported `$init` function minioc does so.
+When calling `loadSync`...
+
+If `path` is a .js file then the loader will treat the file as a module and load it using node's `require` function. If the module exports a function with the name `$init` then the loader will tell `minioc` to `fulfill` it. Minioc identifies dependencies by convention; any named argument beginning with a dollar sign `$` is considered a dependency and minioc will inject that argument. As soon as minioc is able to fulfill all of the dependencies of the exported `$init` function minioc does so. When minioc calls the exported `$init` function, `this` is bound to the IoC container previously given to `loadSync`.
 
 If `path` is a directory, the loader will look for an `index.js` file. If one is present, only the `index.js` file is loaded as a module; otherwise, all .js files in the directory are loaded.
 
-[Study the example code to understand it fully](https://github.com/netsteps/minioc-loader/blob/master/examples/example.js)
+[Study the example code to understand it fully](https://github.com/netsteps/minioc-loader/blob/master/examples/example.js), in particular, notice that the order in which registrations occur on the container is unimportant because minioc will fulfill all requests as soon as their dependencies can be met.
 
 ## Building Blocks
 
