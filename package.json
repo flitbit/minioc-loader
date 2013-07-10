@@ -1,6 +1,6 @@
 {
 	"name": "minioc-loader",
-	"version": "0.1.0",
+	"version": "0.2.0",
 	"author": "Phillip Clark <phillip@flitbit.com>",
 	"description": "Utility for loading and initializing minioc aware modules (nodejs).",
 	"dependencies": {

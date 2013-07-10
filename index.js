@@ -1,11 +1,18 @@
 var fs = require('fs')
 , dbc  = require('dbc.js')
 , path = require('path')
+, minioc = require('minioc')
 ;
 
 var _base
-, _self = {}
 ;
+
+function loader(options) {
+	if (options && options.basePath) {
+		loader.basePath = options.basePath;
+	}
+	return loader;
+}
 
 function trimBasePath(p) {
 	return (p.indexOf(_base) == 0)
@@ -47,9 +54,10 @@ function loadSync(container, file) {
 			}
 		}
 	}
+	return loader;
 }
 
-Object.defineProperties(_self, {
+Object.defineProperties(loader, {
 
 	basePath: {
 		get: function() { return _base; },
@@ -63,8 +71,10 @@ Object.defineProperties(_self, {
 	loadSync: {
 		value: loadSync,
 		enumerable: true
-	}
+	},
+
+	minioc: { value: minioc, enumerable: true }
 
 });
 
-module.exports = _self;
+module.exports = loader;

@@ -1,15 +1,29 @@
-var initialized;
+var initialized
+, call_count = 0
+;
 
-module.exports = function $init($callback) {
+function $init($callback) {
+	// minioc-loader always calls a module's $init method with `this` bound to
+	// the container.
+
 	if (!initialized) {
 
 		var cb = $callback;
 
-		// this is bound to the current container...
-		this.register('$sample').from.factory(function($config) {
-			return cb($config);
-		});
+		this.register('$sample').from.factory(
+			function($data) {
+				return cb($data);
+			});
 
 		initialized = true;
 	}
-};
+	call_count++;
+}
+
+Object.defineProperties($init, {
+
+	call_count: { get: function() { return call_count; }, enumerable: true }
+
+});
+
+module.exports = $init;
