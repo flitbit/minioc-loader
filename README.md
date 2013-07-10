@@ -28,6 +28,11 @@ minioc.fulfill('startup', function($config, $app) {
 
 });
 ```
+## Install
+
+```bash
+npm install minioc-loader
+```
 
 ## Options
 
