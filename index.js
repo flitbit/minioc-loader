@@ -2,6 +2,7 @@ var fs = require('fs')
 , dbc  = require('dbc.js')
 , path = require('path')
 , minioc = require('minioc')
+, pkg = require('./package')
 ;
 
 var _base
@@ -73,7 +74,9 @@ Object.defineProperties(loader, {
 		enumerable: true
 	},
 
-	minioc: { value: minioc, enumerable: true }
+	minioc: { value: minioc, enumerable: true },
+	
+	version: { enumerable: true, value: pkg.version }
 
 });
 
