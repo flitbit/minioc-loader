@@ -10,7 +10,7 @@ function $init($callback) {
 
 		var cb = $callback;
 
-		this.register('$sample').from.factory(
+		this.register('sample').from.factory(
 			function($data) {
 				return cb($data);
 			});

@@ -4,7 +4,7 @@ module.exports = function $init() {
 
 	// conventional $init methods are called in the context of the
 	// IoC container so dependencies can be retrieved directly...
-	var app = this.get('$app');
+	var app = this.get('app');
 
 	// provide a $piper, note its dependency on $peter
 	this.register('$piper').as.factory(

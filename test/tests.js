@@ -22,7 +22,7 @@ describe('minioc-loader', function() {
 			});
 
 			it('it has not made it`s own regisrations ($sample)', function() {
-				expect(container.has('$sample')).to.be(false);
+				expect(container.has('sample')).to.be(false);
 			});
 
 			it('the container won`t fulfill requests for the $sample value', function() {
@@ -35,7 +35,7 @@ describe('minioc-loader', function() {
 				var ourdata = 'This is ours';
 
 				// capture the $sample when it becomes available...
-				container.when('$sample', function(val) {
+				container.when('sample', function(val) {
 					sample = val;
 				});
 
@@ -43,32 +43,32 @@ describe('minioc-loader', function() {
 					// ./sample/index.js' $init method is awaiting a $callback,
 					// this registration will allow minioc to fulfill the $init
 					// method...
-					container.register('$callback').as.value(
+					container.register('callback').as.value(
 						function(data){
 							return (data === ourdata) ? 'Yay!' : 'Booo!';
 						});
 					expect(sample_module.call_count).to.be(1);
 				});
 
-				describe('once the module`s $init function has been called', function() {
+				describe('once the module`s init function has been called', function() {
 
-					it('$sample is registered with the container', function() {
-						expect(container.has('$sample')).to.be(true);
+					it('sample is registered with the container', function() {
+						expect(container.has('sample')).to.be(true);
 					});
 
-					it('$sample cannot be resolved by the container due to the missing dependency ($data)', function() {
-						expect(container.can('$sample')).to.be(false);
+					it('sample cannot be resolved by the container due to the missing dependency (data)', function() {
+						expect(container.can('sample')).to.be(false);
 						expect(sample).to.be.an('undefined');
 					});
 
-					describe('when we register the last remaining dependency ($data)', function() {
+					describe('when we register the last remaining dependency (data)', function() {
 
 						it('the dependency graph is fully fulfilled and our callback is invoked', function() {
  							// now that the $init method has been called there is a
 							// registration for $sample; it is awaiting a $config...
-							container.register('$data').as.value(ourdata);
+							container.register('data').as.value(ourdata);
 
-							// now that there is a $data, all registrations are fulfilled
+							// now that there is a data, all registrations are fulfilled
 							// and our callback was invoked, capturing the $sample value...
 							expect(sample).to.be('Yay!');
 						});

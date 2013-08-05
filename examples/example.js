@@ -25,8 +25,8 @@ container.fulfill("main", function($piper) {
 });
 
 // place some useful things into the container...
-container.register('$app').as.value(app);
-container.register('$config').as.value(config);
+container.register('app').as.value(app);
+container.register('config').as.value(config);
 
 // again, when using connect/express apps this is common...
 loader.loadSync(container, './routes');
