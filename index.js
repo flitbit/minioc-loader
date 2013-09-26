@@ -1,24 +1,100 @@
-var fs = require('fs')
-, dbc  = require('dbc.js')
-, path = require('path')
+var fs   = require('fs')
+, dbc    = require('dbc.js')
+, path   = require('path')
 , minioc = require('minioc')
-, pkg = require('./package')
+, pkg    = require('./package')
 ;
 
 var _base
+, _log
+, _indentStr = '  '
 ;
 
+function indent(n, message) {
+	n= n || 1;
+	return Array(n + 1).join(_indentStr).concat(message);
+}
+
+function log(level, message) {
+	if (level && _log && _log[level])
+	{
+		_log[level](message);
+	}
+}
+
 function loader(options) {
-	if (options && options.basePath) {
-		loader.basePath = options.basePath;
+	if (options) {
+		if (options.basePath) loader.basePath = options.basePath;
+		if (options.log) loader.log = options.log;
 	}
 	return loader;
 }
 
-function trimBasePath(p) {
-	return (p.indexOf(_base) == 0)
-	? p.substring(_base.length+1)
-	: p;
+function withoutBasePath(f, dir) {
+	dir= dir || _base;
+	return (f.indexOf(dir) == 0)
+	? f.substring(dir.length+1)
+	: f;
+}
+
+function withBasePath(f, dir) {
+	dir= dir || _base;
+	return (f.indexOf(dir) === 0) ? f : path.join(dir, f)
+}
+
+function loadFile(depth, container, file, cb) {
+	var m
+	;
+	if (path.extname(file) === '.js') {
+		log('info', 'loader: '.concat(indent(depth, file)));
+		m = require(file);
+		if ('function' === typeof m && m.name === '$init') {
+			container.fulfill(file, m, { next: cb });
+		} else if (m.$init && typeof m.$init === 'function') {
+			container.fulfill(file, m.$init, { next: cb });
+		}
+	}
+}
+
+function loadDir(depth, container, dir, cb) {
+	var files = fs.readdirSync(dir)
+	, i = -1
+	, f
+	, stat
+	, len = files.length
+	, pipe = function next(err) {
+		if (err) {
+			if (cb) cb(err); return;
+		}
+		if (++i < len) {
+			f = withBasePath(files[i], dir);
+			stat = fs.lstatSync(f);
+			if (stat.isDirectory()) {
+				loadDir(depth+1, container, f);
+				next();
+			} else {
+				loadFile(depth+1, container, f, next);
+			}
+		} else {
+			if (cb) cb(null, loader);
+		}
+	}
+	;
+	log('info', 'loader: '.concat(indent(depth, dir)));
+	if (len) {
+		i = files.indexOf('index.js');
+		if (i >= 0) {
+			loadFile(depth + 1, container, withBasePath(files[i]), function(err) {
+				files = files.splice(i, 1);
+				--len; i = -1;
+				pipe(err);
+			});
+		} else {
+			pipe(null);
+		}
+	} else {
+		if (cb) cb(null, loader);
+	}
 }
 
 function loadSync(container, file) {
@@ -28,32 +104,9 @@ function loadSync(container, file) {
 	, m
 	;
 	if (stat.isDirectory()) {
-		var files = fs.readdirSync(fp)
-		, f
-		, i
-		, len = files.length
-		;
-		if (len) {
-			i = files.indexOf('index.js');
-			if (i >= 0) {
-				f = path.join(fp, files[i]);
-				loadSync(container, f);
-			} else {
-				for(i = 0; i < len; i++) {
-					f = path.join(fp, files[i]);
-					loadSync(container, f);
-				}
-			}
-		}
+		loadDir(0, container, fp);
 	} else {
-		if (path.extname(file) === '.js') {
-			m = require(file);
-			if ('function' === typeof m && m.name === '$init') {
-				// conventional $init method,
-				// have the container fulfill...
-				container.fulfill(file, m);
-			}
-		}
+		loadFile(0, container, fp);
 	}
 	return loader;
 }
@@ -69,13 +122,21 @@ Object.defineProperties(loader, {
 		enumerable: true
 	},
 
+	log: {
+		get: function() { return _log; },
+		set: function(val) {
+			_log = val;
+		},
+		enumerable: true
+	},
+
 	loadSync: {
 		value: loadSync,
 		enumerable: true
 	},
 
 	minioc: { value: minioc, enumerable: true },
-	
+
 	version: { enumerable: true, value: pkg.version }
 
 });

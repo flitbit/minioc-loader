@@ -1,8 +1,17 @@
 var util = require('util')
-, loader = require('..')({ basePath: __dirname })
+, loader = require('..')
 , expect = require('expect.js')
 , minioc = loader.minioc
 ;
+
+// initialize loader...
+loader({ basePath: __dirname, log:
+	{
+		info: function(message) {
+			console.log(message);
+		}
+	}
+});
 
 // We write some connect/express apps so often have
 // variables with these names...

@@ -2,10 +2,10 @@ var expect = require('expect.js')
 Container  = require('minioc')
 ;
 
-module.exports = function $init($app, $config) {
+module.exports = function $init($app, config, next) {
 	// the loader ensures dependencies are injected...
 	expect($app).to.be.ok();
-	expect($config.jib).to.be('jab');
+	expect(config.jib).to.be('jab');
 
 	console.log('peter.js initialized with app and config');
 
@@ -17,4 +17,6 @@ module.exports = function $init($app, $config) {
 	this.register('peter').as.value('peter');
 
 	$app.use('peter');
+
+	next();
 };
