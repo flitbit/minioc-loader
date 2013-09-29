@@ -1,9 +1,15 @@
-minioc-loader [![Build Status](https://travis-ci.org/netsteps/minioc-loader.png?branch=master)](https://travis-ci.org/netsteps/minioc-loader)
+minioc-loader [![Build Status](https://travis-ci.org/flitbit/minioc-loader.png?branch=master)](https://travis-ci.org/flitbit/minioc-loader)
 =============
 
 Utility for loading and initializing minioc aware modules (nodejs).
 
 [minioc](https://github.com/flitbit/minioc) is a miniature IoC container for [nodejs](http://nodejs.org/) - see the [github repo](https://github.com/flitbit/minioc) for more info.
+
+## Loader
+
+The loader loads either an individual .js files or a directory. Loader treats each .js file as a module, using node's `require` function. Loader works by convention; it looks for a top-level exported function with the name `$init`. If a module makes such an export, loader simply hands the function to `minioc` to `fulfill`.
+
+`minioc`'s `fulfill` logic will call the `$init` function as soon as it is able to inject the dependencies indicated by the `$init` function's signature.
 
 ## Usage
 
