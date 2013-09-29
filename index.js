@@ -99,6 +99,11 @@ function loadDir(depth, container, dir, cb) {
 	}
 	;
 	log('info', 'loader: '.concat(indent(depth, dir)));
+	files = files.sort(function (lhs, rhs) {
+		if (lhs < rhs) { return -1; }
+		if (lhs > rhs) { return 1; }
+		return 0;
+	});
 	if (len) {
 		i = files.indexOf('index.js');
 		if (i >= 0) {
