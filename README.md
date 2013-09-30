@@ -54,11 +54,24 @@ npm install minioc-loader
 
 When calling `loadSync`...
 
-If `path` is a .js file then the loader will treat the file as a module and load it using node's `require` function. If the module exports a function with the name `$init` then the loader will tell `minioc` to `fulfill` it. Minioc identifies dependencies by convention; any named argument beginning with a dollar sign `$` is considered a dependency and minioc will inject that argument. As soon as minioc is able to fulfill all of the dependencies of the exported `$init` function minioc does so. When minioc calls the exported `$init` function, `this` is bound to the IoC container previously given to `loadSync`.
+If `path` is a .js file then the loader will treat the file as a module and load it using node's `require` function. If the module exports a function with the name `$init` then the loader will tell `minioc` to `fulfill` it. Minioc identifies dependencies by convention; any named argument will be injected if there is a matching registration in the container. Arguments beginning with a dollar sign `$` is considered _required dependencies_ and minioc will call the function as soon as minioc is able to inject all of the required dependencies. When minioc calls the exported `$init` function, `this` is bound to the IoC container previously given to `loadSync`.
 
-If `path` is a directory, the loader will look for an `index.js` file. If one is present, only the `index.js` file is loaded as a module; otherwise, all .js files in the directory are loaded.
+If `path` is a directory, the loader will look for an `index.js` file and if present, the index file will be processed. For initializing modules other than `index.js`, see the discussion on controlling what gets initialized below.
 
 [Study the example code to understand it fully](https://github.com/netsteps/minioc-loader/blob/master/examples/example.js), in particular, notice that the order in which registrations occur on the container is unimportant because minioc will fulfill all requests as soon as their dependencies can be met.
+
+## Controlling What Gets Initialized in Directories
+
+The loader will always invoke the first exported `$init` function that it finds in a directory. It begins by loading an `index.js` file if one exists, otherwise it processes all files in alphabetical (_string sort_) order.
+
+If the directory contains sub-directories, they are processed in-line as the files are being processed. The loader process is repeated for each sub-directory.
+
+For a given directory, the first exported `$init` function is scheduled. The loader does not directly call the `$init` function, instead it uses the minioc `container`'s `fulfill` operation. When the loader calls minioc's `fulfill`, it always provides two options: `next` and `loader`.
+
+**next** --- a callback function used to tell the loader to continue processing the directory.
+**loader*** --- the loader itself enabling you to load other files and directories
+
+When an `$init` function fails to bind and call the `next` callback, it effectively cancels the loading process.
 
 ## Building Blocks
 

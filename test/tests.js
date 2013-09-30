@@ -5,7 +5,8 @@
 
 var expect = require('expect.js')
 , minioc   = require('minioc')
-, loader   = require('..')({basePath: __dirname}) // initialize base-path
+, log      = require('winston')
+, loader   = require('..')({basePath: __dirname, log: log}) // initialize base-path
 ;
 
 describe('minioc-loader', function () {

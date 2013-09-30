@@ -3,10 +3,12 @@
 /* jshint laxbreak: true, laxcomma: true */
 
 var fs = require('fs')
+, util = require('util')
 , dbc    = require('dbc.js')
 , path   = require('path')
 , minioc = require('minioc')
 , pkg    = require('./package')
+, extend = util._extend
 ;
 
 var cachePath,
@@ -46,21 +48,22 @@ function withBasePath(f, dir) {
 	return (f.indexOf(dir) === 0) ? f : path.join(dir, f);
 }
 
-function loadFile(depth, container, file, next) {
+function loadFile(depth, container, file, options, next) {
 	var m
 	;
 	if (path.extname(file) === '.js') {
 		log('info', 'loader: '.concat(indent(depth, file)));
 		m = require(file);
 		if ('function' === typeof m && m.name === '$init') {
-			container.fulfill(file, m, { next: next, loader: loader});
+			container.fulfill(file, m, extend(options, { next: next, loader: loader}));
 		} else if (m.$init && typeof m.$init === 'function') {
-			container.fulfill(file, m.$init, { next: next, loader: loader });
+			container.fulfill(file, m.$init, extend(options, { next: next, loader: loader }));
 		} else {
 			if (next) { next(); }
 		}
 	}
 }
+
 function arrayExcept(arr, i) {
 	if (i > 0)
 	{
@@ -73,7 +76,7 @@ function arrayExcept(arr, i) {
 	return arr.slice(1);
 }
 
-function loadDir(depth, container, dir, cb) {
+function loadDir(depth, container, dir, options, next) {
 	var files = fs.readdirSync(dir)
 	, i = -1
 	, f
@@ -81,20 +84,18 @@ function loadDir(depth, container, dir, cb) {
 	, len = files.length
 	, pipe = function next(err) {
 		if (err) {
-			if (cb) { cb(err); }
+			if (next) { next(err); }
 			return;
 		}
 		if (++i < len) {
 			f = withBasePath(files[i], dir);
 			stat = fs.lstatSync(f);
 			if (stat.isDirectory()) {
-				loadDir(depth + 1, container, f);
+				loadDir(depth + 1, container, f, options);
 				next();
 			} else {
-				loadFile(depth + 1, container, f, next);
+				loadFile(depth + 1, container, f, options, next);
 			}
-		} else {
-			if (cb) { cb(null, loader); }
 		}
 	}
 	;
@@ -107,7 +108,7 @@ function loadDir(depth, container, dir, cb) {
 	if (len) {
 		i = files.indexOf('index.js');
 		if (i >= 0) {
-			loadFile(depth + 1, container, withBasePath(files[i], dir), function (err) {
+			loadFile(depth + 1, container, withBasePath(files[i], dir), options, function (err) {
 				files = arrayExcept(files, i);
 				--len;
 				i = -1;
@@ -117,20 +118,21 @@ function loadDir(depth, container, dir, cb) {
 			pipe(null);
 		}
 	} else {
-		if (cb) { cb(null, loader); }
+		if (next) { next(null, loader); }
 	}
 }
 
-function loadSync(container, file) {
+function loadSync(container, file, options) {
 	dbc(['string' === typeof cachePath], 'Invalid operation; basePath must be set before loading modules.');
 	var fp = (file.indexOf(cachePath) === 0) ? file : path.join(cachePath, file)
 	, stat = fs.lstatSync(fp)
 	, m
 	;
+	options = options || {};
 	if (stat.isDirectory()) {
-		loadDir(0, container, fp);
+		loadDir(0, container, fp, options);
 	} else {
-		loadFile(0, container, fp);
+		loadFile(0, container, fp, options);
 	}
 	return loader;
 }
