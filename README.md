@@ -68,8 +68,9 @@ If the directory contains sub-directories, they are processed in-line as the fil
 
 For a given directory, the first exported `$init` function is scheduled. The loader does not directly call the `$init` function, instead it uses the minioc `container`'s `fulfill` operation. When the loader calls minioc's `fulfill`, it always provides two options: `next` and `loader`.
 
-**next** --- a callback function used to tell the loader to continue processing the directory.
-**loader*** --- the loader itself enabling you to load other files and directories
+**next** -- a callback function used to tell the loader to continue processing the directory.
+
+**loader** -- the loader itself enabling you to load other files and directories.
 
 When an `$init` function fails to bind and call the `next` callback, it effectively cancels the loading process.
 
