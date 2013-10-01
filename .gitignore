@@ -2,3 +2,6 @@
 *.sublime-*
 node_modules
 .DS_Store
+
+# Webstorm and IDEA based IDE's
+.idea
