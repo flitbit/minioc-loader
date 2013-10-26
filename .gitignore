@@ -5,3 +5,5 @@ node_modules
 
 # Webstorm and IDEA based IDE's
 .idea
+# Coffee compiler's .map file
+.map
