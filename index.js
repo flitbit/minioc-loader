@@ -61,7 +61,9 @@ function loadFile(depth, container, file, options, next) {
 		} else {
 			if (next) { next(); }
 		}
-	}
+	} else {
+    if(next) { next(); }
+  }
 }
 
 function arrayExcept(arr, i) {

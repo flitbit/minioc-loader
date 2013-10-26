@@ -166,6 +166,19 @@ describe('minioc-loader', function () {
 
 	});
 
+  describe('loading the examples in ./coffee_load_all', function () {
+    it('loads without error', function () {
+      loader.loadSync(container, './coffee_load_all');
+    });
+
+    it('loaded 1.coffee/js', function () {
+      expect(container.can('coffee1')).to.be(true);
+    });
+
+    it('loaded 2.coffee/js', function () {
+      expect(container.can('coffee2')).to.be(true)
+    });
+  });
 
 	describe('loading the examples in ./load_all', function () {
 
